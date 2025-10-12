@@ -1,0 +1,47 @@
+Список файлов для загрузки в GitHub:
+
+ОСНОВНЫЕ ФАЙЛЫ (ОБЯЗАТЕЛЬНО):
+✅ streamlit_app.py - веб-приложение
+✅ requirements.txt - зависимости Python
+✅ render.yaml - конфигурация для Render
+✅ railway.json - конфигурация для Railway
+
+ВЕБ-ПАНЕЛЬ:
+✅ support_dashboard.html - панель поддержки
+
+ПРИЛОЖЕНИЯ:
+✅ app_simple_ollama.py - простое приложение
+✅ cors_proxy.py - CORS прокси
+
+МОДЕЛИ:
+✅ BankModelfile - банковская модель
+✅ Modelfile - обычная модель
+✅ bank_support_prompt.txt - промпт для банка
+
+ДОКУМЕНТАЦИЯ:
+✅ README.md - основная документация
+✅ ОБУЧЕНИЕ_МОДЕЛИ.md - обучение модели
+✅ БАНКОВСКАЯ_ПОДДЕРЖКА_v2.md - банковская поддержка
+✅ РАЗВЕРТЫВАНИЕ_В_ОБЛАКЕ.md - развертывание
+✅ ЗАГРУЗКА_В_GITHUB.md - эта инструкция
+✅ deploy_to_render.md - развертывание на Render
+✅ ГОТОВО_К_РАБОТЕ.md - готовность системы
+✅ OLLAMA_SETUP.md - настройка Ollama
+✅ TRAINING_GUIDE.md - руководство по обучению
+✅ AI_ПОДСКАЗКИ_ИНСТРУКЦИЯ.md - AI подсказки
+✅ ИСПРАВЛЕНИЕ_CORS.md - исправление CORS
+✅ ЗАПУСК_OLLAMA.md - запуск Ollama
+✅ БЫСТРЫЙ_ЗАПУСК.md - быстрый старт
+
+СКРИПТЫ:
+✅ start_system.bat - запуск системы
+✅ stop_system.bat - остановка системы
+✅ restart_system.bat - перезапуск системы
+✅ check_system.bat - проверка статуса
+✅ deploy_to_github.bat - загрузка в GitHub
+
+ДАННЫЕ:
+✅ data/ - папка с данными (если есть)
+
+ВСЕГО ФАЙЛОВ: ~25 файлов
+РАЗМЕР: ~2-3 MB

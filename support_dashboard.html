@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель поддержки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            color: #000000;
+        }
+        
+        .dashboard {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Левая панель - Список чатов */
+        .chat-list {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid #e7e8ec;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-list-header {
+            padding: 16px 20px;
+            background: #ffffff;
+            color: #000000;
+            font-weight: 500;
+            font-size: 16px;
+            border-bottom: 1px solid #e7e8ec;
+        }
+        
+        .chat-search {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e7e8ec;
+        }
+        
+        .chat-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            background: #f4f4f5;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .chat-search input:focus {
+            background: #e7e8ec;
+        }
+        
+        .chat-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f4f4f5;
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+        }
+        
+        .chat-item:hover {
+            background: #f4f4f5;
+        }
+        
+        .chat-item.active {
+            background: #e3f2fd;
+        }
+        
+        .chat-item.unread {
+            background: #f0f8ff;
+        }
+        
+        .chat-item.unread::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #0088cc;
+            border-radius: 50%;
+        }
+        
+        .chat-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 15px;
+            color: #000000;
+        }
+        
+        .chat-preview {
+            font-size: 13px;
+            color: #707579;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: #999999;
+            margin-top: 4px;
+        }
+        
+        /* Центральная панель - Диалог */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        
+        .chat-header {
+            padding: 16px 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e7e8ec;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-info h3 {
+            margin: 0;
+            color: #000000;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .chat-info p {
+            margin: 2px 0 0 0;
+            color: #707579;
+            font-size: 13px;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+        
+        .btn-primary {
+            background: #0088cc;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #006ba3;
+        }
+        
+        .btn-secondary {
+            background: #f4f4f5;
+            color: #000000;
+        }
+        
+        .btn-secondary:hover {
+            background: #e7e8ec;
+        }
+        
+        .btn-success {
+            background: #00a884;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #008f73;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            background: #ffffff;
+        }
+        
+        .message {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .message.user {
+            justify-content: flex-start;
+        }
+        
+        .message.support {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 7px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .message.user .message-content {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #e7e8ec;
+            border-bottom-left-radius: 3px;
+        }
+        
+        .message.support .message-content {
+            background: #dcf8c6;
+            color: #000000;
+            border-bottom-right-radius: 3px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #999999;
+            margin-top: 4px;
+            text-align: left;
+        }
+        
+        .message.support .message-time {
+            text-align: right;
+        }
+        
+        .message-input {
+            padding: 16px 20px;
+            background: #ffffff;
+            border-top: 1px solid #e7e8ec;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .input-container textarea {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #e7e8ec;
+            border-radius: 20px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            min-height: 36px;
+            max-height: 120px;
+            outline: none;
+            background: #ffffff;
+        }
+        
+        .input-container textarea:focus {
+            border-color: #0088cc;
+        }
+        
+        .send-btn {
+            padding: 10px 16px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+        
+        .send-btn:hover {
+            background: #006ba3;
+        }
+        
+        .send-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        /* Правая панель - Подсказки */
+        .suggestions-panel {
+            width: 320px;
+            background: #ffffff;
+            border-left: 1px solid #e7e8ec;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .suggestions-header {
+            padding: 16px 20px;
+            background: #ffffff;
+            color: #000000;
+            font-weight: 500;
+            font-size: 16px;
+            border-bottom: 1px solid #e7e8ec;
+        }
+        
+        .suggestions-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+        
+        .suggestion-category {
+            margin-bottom: 20px;
+        }
+        
+        .suggestion-category h4 {
+            color: #000000;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .suggestion-item {
+            padding: 8px 12px;
+            background: #f4f4f5;
+            border: 1px solid #e7e8ec;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+        
+        .suggestion-item:hover {
+            background: #e7e8ec;
+            border-color: #0088cc;
+        }
+        
+        .suggestion-item:active {
+            background: #0088cc;
+            color: white;
+        }
+        
+        .ai-suggestions {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+        }
+        
+        .ai-suggestions h4 {
+            color: #1976d2;
+        }
+        
+        .ai-suggestion {
+            background: #f3e5f5;
+            border: 1px solid #e1bee7;
+            color: #4a148c;
+        }
+        
+        .ai-suggestion:hover {
+            background: #e1bee7;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #28a745;
+        }
+        
+        .status-away {
+            background: #ffc107;
+        }
+        
+        .status-offline {
+            background: #dc3545;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            color: #666;
+            font-style: italic;
+            font-size: 12px;
+        }
+        
+        .typing-indicator.show {
+            display: block;
+        }
+        
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: right 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .settings-panel.open {
+            right: 0;
+        }
+        
+        .settings-header {
+            padding: 20px;
+            background: #6c757d;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .settings-content {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+        
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Левая панель - Список чатов -->
+        <div class="chat-list">
+            <div class="chat-list-header">
+                Чаты клиентов
+            </div>
+            <div class="chat-search">
+                <input type="text" placeholder="Поиск чатов..." id="chatSearch">
+            </div>
+            <div class="chat-items" id="chatItems">
+                <!-- Чаты будут добавлены динамически -->
+            </div>
+        </div>
+        
+        <!-- Центральная панель - Диалог -->
+        <div class="chat-window">
+            <div class="chat-header">
+                <div class="chat-info">
+                    <h3 id="currentChatName">Выберите чат</h3>
+                    <p id="currentChatStatus">Статус клиента</p>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn btn-secondary" onclick="openSettings()">Настройки</button>
+                    <button class="btn btn-success" onclick="generateAIResponse()">AI Ответ</button>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div class="message support">
+                    <div class="message-content">
+                        Добро пожаловать в панель поддержки! Выберите чат слева, чтобы начать общение с клиентом.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                Клиент печатает...
+            </div>
+            
+            <div class="message-input">
+                <div class="input-container">
+                    <textarea id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
+                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">Отправить</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая панель - Подсказки -->
+        <div class="suggestions-panel">
+            <div class="suggestions-header">
+                Подсказки и шаблоны
+            </div>
+            <div class="suggestions-content">
+                <div class="suggestion-category">
+                    <h4>AI Подсказки</h4>
+                    <div class="suggestion-item ai-suggestion" onclick="generateBankResponse('classify')">
+                        Классифицировать запрос клиента
+                    </div>
+                    <div class="suggestion-item ai-suggestion" onclick="generateBankResponse('analyze')">
+                        Проанализировать проблему
+                    </div>
+                    <div class="suggestion-item ai-suggestion" onclick="generateBankResponse('solution')">
+                        Предложить решение
+                    </div>
+                    <div class="suggestion-item ai-suggestion" onclick="generateBankResponse('escalation')">
+                        Передать специалисту
+                    </div>
+                    <div class="suggestion-item ai-suggestion" onclick="generateBankResponse('clarify')">
+                        Запросить уточнения
+                    </div>
+                </div>
+                
+                <div class="suggestion-category">
+                    <h4>Быстрые ответы</h4>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Здравствуйте! Спасибо за обращение. Как я могу помочь?
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Понял вашу проблему. Давайте разберемся вместе.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Спасибо за терпение! Я работаю над решением.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Проверьте, пожалуйста, ваш email для дальнейших инструкций.
+                    </div>
+                </div>
+                
+                <div class="suggestion-category">
+                    <h4>Техническая поддержка</h4>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Попробуйте очистить кэш браузера и обновить страницу.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Проверьте подключение к интернету.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Перезагрузите приложение и попробуйте снова.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Обратитесь к разделу "Часто задаваемые вопросы".
+                    </div>
+                </div>
+                
+                <div class="suggestion-category">
+                    <h4>Вопросы по оплате</h4>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Информация о вашем платеже будет отправлена на email.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Возврат средств происходит в течение 3-5 рабочих дней.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Для отмены подписки перейдите в настройки аккаунта.
+                    </div>
+                </div>
+                
+                <div class="suggestion-category">
+                    <h4>Завершение диалога</h4>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Проблема решена? Есть ли еще вопросы?
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Спасибо за обращение! Обращайтесь, если понадобится помощь.
+                    </div>
+                    <div class="suggestion-item" onclick="useSuggestion(this)">
+                        Оцените, пожалуйста, качество нашей поддержки.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Панель настроек -->
+    <div class="overlay" id="overlay" onclick="closeSettings()"></div>
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3>Настройки</h3>
+                <button class="btn btn-secondary" onclick="closeSettings()">×</button>
+            </div>
+        <div class="settings-content">
+            <div class="form-group">
+                <label for="openaiApiKey">OpenAI API Key (для embeddings):</label>
+                <input type="password" id="openaiApiKey" placeholder="Введите ваш OpenAI API ключ">
+            </div>
+            <div class="form-group">
+                <label for="supportName">Имя оператора:</label>
+                <input type="text" id="supportName" placeholder="Ваше имя" value="Оператор поддержки">
+            </div>
+            <div class="form-group">
+                <label for="companyName">Название компании:</label>
+                <input type="text" id="companyName" placeholder="Название компании" value="Наша компания">
+            </div>
+            <div class="form-group">
+                <label for="greetingMessage">Приветственное сообщение:</label>
+                <textarea id="greetingMessage" placeholder="Сообщение при первом обращении клиента">Здравствуйте! Спасибо за обращение в нашу службу поддержки. Как я могу помочь?</textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">Сохранить настройки</button>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let currentChatId = null;
+        let chats = [];
+        let settings = {
+            openaiApiKey: '',
+            supportName: 'Оператор поддержки',
+            companyName: 'Наша компания',
+            greetingMessage: 'Здравствуйте! Спасибо за обращение в нашу службу поддержки. Как я могу помочь?'
+        };
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            initializeChats();
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Поиск чатов
+            document.getElementById('chatSearch').addEventListener('input', filterChats);
+            
+            // Отправка сообщения по Enter
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Автоматическое изменение размера textarea
+            document.getElementById('messageInput').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+        
+        function initializeChats() {
+            // Создаем тестовые чаты
+            chats = [
+                {
+                    id: 1,
+                    name: 'Анна Петрова',
+                    email: 'anna@example.com',
+                    status: 'online',
+                    lastMessage: 'Не могу войти в аккаунт',
+                    lastMessageTime: '10:30',
+                    unread: true,
+                    messages: [
+                        { type: 'user', text: 'Здравствуйте! Не могу войти в свой аккаунт', time: '10:25' },
+                        { type: 'user', text: 'Пишет, что неверный пароль, но я уверена, что ввожу правильно', time: '10:26' }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: 'Михаил Сидоров',
+                    email: 'mikhail@example.com',
+                    status: 'away',
+                    lastMessage: 'Вопрос по оплате',
+                    lastMessageTime: '09:45',
+                    unread: false,
+                    messages: [
+                        { type: 'user', text: 'Добрый день! У меня вопрос по оплате', time: '09:40' },
+                        { type: 'support', text: 'Здравствуйте! Слушаю вас', time: '09:41' },
+                        { type: 'user', text: 'Я оплатил подписку, но деньги не списались', time: '09:42' }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: 'Елена Козлова',
+                    email: 'elena@example.com',
+                    status: 'offline',
+                    lastMessage: 'Спасибо за помощь!',
+                    lastMessageTime: 'Вчера',
+                    unread: false,
+                    messages: [
+                        { type: 'user', text: 'Помогите настроить уведомления', time: 'Вчера 15:30' },
+                        { type: 'support', text: 'Конечно! Перейдите в настройки...', time: 'Вчера 15:32' },
+                        { type: 'user', text: 'Спасибо за помощь!', time: 'Вчера 15:45' }
+                    ]
+                }
+            ];
+            
+            renderChatList();
+        }
+        
+        function renderChatList() {
+            const chatItems = document.getElementById('chatItems');
+            chatItems.innerHTML = '';
+            
+            chats.forEach(chat => {
+                const chatElement = document.createElement('div');
+                chatElement.className = `chat-item ${chat.unread ? 'unread' : ''}`;
+                chatElement.onclick = () => selectChat(chat.id);
+                
+                const statusClass = chat.status === 'online' ? 'status-online' : 
+                                  chat.status === 'away' ? 'status-away' : 'status-offline';
+                
+                chatElement.innerHTML = `
+                    <div class="chat-name">
+                        <span class="status-indicator ${statusClass}"></span>
+                        ${chat.name}
+                    </div>
+                    <div class="chat-preview">${chat.lastMessage}</div>
+                    <div class="chat-time">${chat.lastMessageTime}</div>
+                `;
+                
+                chatItems.appendChild(chatElement);
+            });
+        }
+        
+        function selectChat(chatId) {
+            currentChatId = chatId;
+            const chat = chats.find(c => c.id === chatId);
+            
+            if (!chat) return;
+            
+            // Обновляем активный чат в списке
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Убираем непрочитанные сообщения
+            chat.unread = false;
+            
+            // Обновляем заголовок
+            document.getElementById('currentChatName').textContent = chat.name;
+            document.getElementById('currentChatStatus').textContent = 
+                `Статус: ${chat.status === 'online' ? 'Онлайн' : 
+                          chat.status === 'away' ? 'Отошел' : 'Офлайн'}`;
+            
+            // Отображаем сообщения
+            renderMessages(chat.messages);
+            
+            // Обновляем список чатов
+            renderChatList();
+        }
+        
+        function renderMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${message.type}`;
+                
+                messageElement.innerHTML = `
+                    <div class="message-content">
+                        ${message.text}
+                        <div class="message-time">${message.time}</div>
+                    </div>
+                `;
+                
+                container.appendChild(messageElement);
+            });
+            
+            // Прокручиваем вниз
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentChatId) return;
+            
+            const chat = chats.find(c => c.id === currentChatId);
+            if (!chat) return;
+            
+            // Добавляем сообщение оператора
+            const newMessage = {
+                type: 'support',
+                text: message,
+                time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            chat.messages.push(newMessage);
+            chat.lastMessage = message;
+            chat.lastMessageTime = newMessage.time;
+            
+            // Обновляем интерфейс
+            renderMessages(chat.messages);
+            renderChatList();
+            
+            // Очищаем поле ввода
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Показываем индикатор печати клиента
+            showTypingIndicator();
+            
+            // Имитируем ответ клиента через 2-3 секунды
+            setTimeout(() => {
+                hideTypingIndicator();
+                simulateClientResponse(chat);
+            }, 2000 + Math.random() * 1000);
+        }
+        
+        function simulateClientResponse(chat) {
+            const responses = [
+                'Понял, спасибо!',
+                'А что делать дальше?',
+                'Не помогло, все еще не работает',
+                'Отлично, теперь все работает!',
+                'Можно еще один вопрос?',
+                'Спасибо за помощь!'
+            ];
+            
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            
+            const newMessage = {
+                type: 'user',
+                text: response,
+                time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            chat.messages.push(newMessage);
+            chat.lastMessage = response;
+            chat.lastMessageTime = newMessage.time;
+            chat.unread = true;
+            
+            renderMessages(chat.messages);
+            renderChatList();
+        }
+        
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('show');
+        }
+        
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('show');
+        }
+        
+        function useSuggestion(element) {
+            const suggestion = element.textContent;
+            document.getElementById('messageInput').value = suggestion;
+            document.getElementById('messageInput').focus();
+        }
+        
+        function generateBankResponse(type) {
+            if (!currentChatId) {
+                alert('Выберите чат для генерации ответа');
+                return;
+            }
+            
+            const chat = chats.find(c => c.id === currentChatId);
+            if (!chat || chat.messages.length === 0) return;
+            
+            // Получаем последние сообщения клиента
+            const clientMessages = chat.messages.filter(m => m.type === 'user').slice(-3);
+            const context = clientMessages.map(m => m.text).join(' ');
+            
+            // Показываем индикатор загрузки
+            const sendBtn = document.getElementById('sendBtn');
+            const originalText = sendBtn.textContent;
+            sendBtn.textContent = 'Анализирую...';
+            sendBtn.disabled = true;
+            
+            // Формируем промпт для банковской модели
+            let prompt = '';
+            switch(type) {
+                case 'classify':
+                    prompt = `Проанализируй запрос клиента и классифицируй его:
+
+Запрос клиента: "${context}"
+
+Выполни полный анализ согласно инструкции банковской поддержки.`;
+                    break;
+                case 'analyze':
+                    prompt = `Проанализируй проблему клиента и выдели ключевые элементы:
+
+Проблема клиента: "${context}"
+
+Выполни детальный анализ проблемы согласно инструкции банковской поддержки.`;
+                    break;
+                case 'solution':
+                    prompt = `Предложи решение проблемы клиента:
+
+Проблема клиента: "${context}"
+
+Сформулируй решение согласно инструкции банковской поддержки.`;
+                    break;
+                case 'escalation':
+                    prompt = `Определи, нужно ли передать вопрос специалисту:
+
+Вопрос клиента: "${context}"
+
+Проанализируй согласно инструкции банковской поддержки.`;
+                    break;
+                case 'clarify':
+                    prompt = `Определи, какие уточнения нужны для решения вопроса:
+
+Вопрос клиента: "${context}"
+
+Сформулируй уточняющие вопросы согласно инструкции банковской поддержки.`;
+                    break;
+                default:
+                    prompt = `Проанализируй запрос клиента: "${context}"`;
+            }
+            
+            // Вызываем банковскую модель
+            callBankAPI(prompt)
+                .then(response => {
+                    // Показываем чистый текст ответа
+                    document.getElementById('messageInput').value = response;
+                    document.getElementById('messageInput').focus();
+                })
+                .catch(error => {
+                    alert('Ошибка при генерации ответа: ' + error.message);
+                })
+                .finally(() => {
+                    sendBtn.textContent = originalText;
+                    sendBtn.disabled = false;
+                });
+        }
+
+        function generateAIResponse(type) {
+            if (!currentChatId) {
+                alert('Выберите чат для генерации ответа');
+                return;
+            }
+            
+            const chat = chats.find(c => c.id === currentChatId);
+            if (!chat || chat.messages.length === 0) return;
+            
+            // Получаем последние сообщения клиента
+            const clientMessages = chat.messages.filter(m => m.type === 'user').slice(-3);
+            const context = clientMessages.map(m => m.text).join(' ');
+            
+            // Показываем индикатор загрузки
+            const sendBtn = document.getElementById('sendBtn');
+            const originalText = sendBtn.textContent;
+            sendBtn.textContent = 'Генерирую...';
+            sendBtn.disabled = true;
+            
+            // Формируем промпт в зависимости от типа
+            let prompt = '';
+            switch(type) {
+                case 'context':
+                    prompt = `На основе контекста диалога с клиентом ответь профессионально:
+
+Контекст: ${context}
+
+Сформулируй вежливый и полезный ответ оператора поддержки:`;
+                    break;
+                case 'solution':
+                    prompt = `Клиент обратился с проблемой. Предложи пошаговое решение:
+
+Проблема клиента: ${context}
+
+Предложи конкретные шаги для решения проблемы:`;
+                    break;
+                case 'polite_refusal':
+                    prompt = `Клиент обратился с запросом, который нельзя выполнить. Сформулируй вежливый отказ:
+
+Запрос клиента: ${context}
+
+Создай вежливый отказ с объяснением причин и альтернативными предложениями:`;
+                    break;
+                case 'escalation':
+                    prompt = `Клиент обратился с вопросом, который требует передачи специалисту. Сформулируй ответ:
+
+Вопрос клиента: ${context}
+
+Объясни, что вопрос будет передан специалисту, и укажи сроки ответа:`;
+                    break;
+                case 'follow_up':
+                    prompt = `Клиент обратился с вопросом. Задай уточняющие вопросы для лучшего понимания:
+
+Вопрос клиента: ${context}
+
+Сформулируй 2-3 уточняющих вопроса для получения дополнительной информации:`;
+                    break;
+                default:
+                    prompt = `Ответь на вопрос клиента профессионально: ${context}`;
+            }
+            
+            // Вызываем Ollama API
+            callOllamaAPI(prompt)
+                .then(response => {
+                    document.getElementById('messageInput').value = response;
+                    document.getElementById('messageInput').focus();
+                })
+                .catch(error => {
+                    alert('Ошибка при генерации ответа: ' + error.message);
+                })
+                .finally(() => {
+                    sendBtn.textContent = originalText;
+                    sendBtn.disabled = false;
+                });
+        }
+        
+        async function callBankAPI(prompt) {
+            try {
+                const response = await fetch('http://localhost:8080/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'bank-support-v2',
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.3,
+                            top_p: 0.9
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('Bank API error:', error);
+                // Возвращаем заглушку для банковской поддержки
+                return generateBankFallbackResponse(prompt);
+            }
+        }
+
+        async function callOllamaAPI(prompt) {
+            try {
+                const response = await fetch('http://localhost:8080/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'support-bot',
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.7,
+                            top_p: 0.9
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('Ollama API error:', error);
+                // Возвращаем заглушку вместо ошибки
+                return generateFallbackResponse(prompt);
+            }
+        }
+
+        function generateBankFallbackResponse(prompt) {
+            // Заглушки для банковской поддержки (чистый текст)
+            if (prompt.includes('классифицируй')) {
+                return "Пожалуйста, уточните детали вашего запроса для более точной классификации и предоставления соответствующей помощи.";
+            } else if (prompt.includes('проанализируй проблему')) {
+                return "Для решения вашей проблемы необходимо получить дополнительную информацию. Пожалуйста, опишите подробнее, с чем именно возникли сложности.";
+            } else if (prompt.includes('предложи решение')) {
+                return "Для предоставления точного решения необходимо уточнить детали вашей ситуации. Пожалуйста, предоставьте дополнительную информацию.";
+            } else if (prompt.includes('передать специалисту')) {
+                return "Ваш вопрос будет передан специалисту для детального рассмотрения. Ожидайте ответа в течение 2-4 часов в рабочие дни.";
+            } else if (prompt.includes('уточнения')) {
+                return "Для предоставления точной помощи необходимо уточнить следующие детали: когда возникла проблема, какие действия уже предпринимались, есть ли сообщения об ошибках.";
+            } else {
+                return "Здравствуйте! Спасибо за обращение в службу поддержки банка. Я готов помочь вам решить ваш вопрос. Пожалуйста, опишите ситуацию более подробно.";
+            }
+        }
+
+        function generateFallbackResponse(prompt) {
+            // Простые заглушки для разных типов запросов
+            if (prompt.includes('контекста диалога')) {
+                return "Здравствуйте! Спасибо за обращение. Я проанализировал вашу ситуацию и готов помочь. Пожалуйста, уточните детали вашего вопроса для более точного ответа.";
+            } else if (prompt.includes('пошаговое решение')) {
+                return "Для решения вашей проблемы рекомендую следующие шаги:\n\n1. Проверьте основные настройки\n2. Очистите кэш браузера\n3. Попробуйте другой способ\n4. Обратитесь к техническому специалисту\n\nЕсли проблема остается, я передам ваш запрос специалисту.";
+            } else if (prompt.includes('вежливый отказ')) {
+                return "К сожалению, мы не можем выполнить ваш запрос в полном объеме. Однако мы можем предложить альтернативные решения. Пожалуйста, свяжитесь с нашим менеджером для обсуждения возможных вариантов.";
+            } else if (prompt.includes('передан специалисту')) {
+                return "Ваш вопрос требует технической экспертизы. Я передам его нашему специалисту, который ответит в течение 2-4 часов в рабочие дни. Спасибо за терпение!";
+            } else if (prompt.includes('уточняющие вопросы')) {
+                return "Для лучшего понимания вашей ситуации, пожалуйста, уточните:\n\n1. Когда возникла проблема?\n2. Какие действия вы уже предпринимали?\n3. Есть ли сообщения об ошибках?\n\nЭта информация поможет мне дать более точный ответ.";
+            } else {
+                return "Здравствуйте! Спасибо за обращение. Я готов помочь вам решить вашу проблему. Пожалуйста, опишите ситуацию более подробно.";
+            }
+        }
+
+        async function callDeepSeekAPI(context, apiKey) {
+            const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: `Ты оператор службы поддержки. Клиент написал: "${context}". Ответь вежливо и профессионально на русском языке, предложи решение проблемы.`
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 500
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+        
+        function filterChats() {
+            const searchTerm = document.getElementById('chatSearch').value.toLowerCase();
+            const chatItems = document.querySelectorAll('.chat-item');
+            
+            chatItems.forEach(item => {
+                const chatName = item.querySelector('.chat-name').textContent.toLowerCase();
+                const chatPreview = item.querySelector('.chat-preview').textContent.toLowerCase();
+                
+                if (chatName.includes(searchTerm) || chatPreview.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function openSettings() {
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('settingsPanel').classList.add('open');
+            
+            // Загружаем текущие настройки
+            document.getElementById('openaiApiKey').value = settings.openaiApiKey;
+            document.getElementById('supportName').value = settings.supportName;
+            document.getElementById('companyName').value = settings.companyName;
+            document.getElementById('greetingMessage').value = settings.greetingMessage;
+        }
+        
+        function closeSettings() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('settingsPanel').classList.remove('open');
+        }
+        
+        function saveSettings() {
+            settings.openaiApiKey = document.getElementById('openaiApiKey').value;
+            settings.supportName = document.getElementById('supportName').value;
+            settings.companyName = document.getElementById('companyName').value;
+            settings.greetingMessage = document.getElementById('greetingMessage').value;
+            
+            localStorage.setItem('supportSettings', JSON.stringify(settings));
+            closeSettings();
+            
+            alert('Настройки сохранены!');
+        }
+        
+        function loadSettings() {
+            const saved = localStorage.getItem('supportSettings');
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+        }
+    </script>
+</body>
+</html>

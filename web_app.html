@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Support Bot - DeepSeek</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .chat-container {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: 20%;
+        }
+        
+        .bot-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: 20%;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .settings {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .api-key-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .faq-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .faq-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 RAG Support Bot с DeepSeek API</h1>
+        
+        <div class="settings">
+            <h3>⚙️ Настройки</h3>
+            <label for="apiKey">DeepSeek API Key:</label>
+            <input type="password" id="apiKey" class="api-key-input" placeholder="Введите ваш API ключ DeepSeek">
+            <button onclick="saveApiKey()">Сохранить ключ</button>
+            <div id="status"></div>
+            <p><strong>Как получить API ключ:</strong></p>
+            <ol>
+                <li>Зарегистрируйтесь на <a href="https://platform.deepseek.com/" target="_blank">platform.deepseek.com</a></li>
+                <li>Создайте API ключ в личном кабинете</li>
+                <li>Вставьте ключ в поле выше</li>
+            </ol>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot-message">
+                Привет! Я бот поддержки. Задайте мне вопрос, и я помогу вам найти ответ.
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Введите ваш вопрос..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+        
+        <div class="faq-section">
+            <h3>📚 База знаний FAQ</h3>
+            <div class="faq-item">
+                <strong>В:</strong> Как сбросить пароль?<br>
+                <strong>О:</strong> Перейдите на страницу входа и нажмите 'Забыли пароль?'. Введите ваш email и следуйте инструкциям в письме.
+            </div>
+            <div class="faq-item">
+                <strong>В:</strong> Как изменить email?<br>
+                <strong>О:</strong> Войдите в настройки профиля, найдите раздел 'Контактная информация' и обновите email адрес.
+            </div>
+            <div class="faq-item">
+                <strong>В:</strong> Как связаться с поддержкой?<br>
+                <strong>О:</strong> Вы можете связаться с нами через email support@example.com или через форму обратной связи на сайте.
+            </div>
+            <div class="faq-item">
+                <strong>В:</strong> Какие способы оплаты доступны?<br>
+                <strong>О:</strong> Мы принимаем банковские карты, PayPal, Apple Pay и Google Pay.
+            </div>
+            <div class="faq-item">
+                <strong>В:</strong> Как отменить заказ?<br>
+                <strong>О:</strong> Заказы можно отменить в течение 24 часов после оформления через личный кабинет или обратившись в поддержку.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+        const DEEPSEEK_MODEL = "deepseek-chat";
+        
+        // Загружаем сохраненный API ключ
+        window.onload = function() {
+            const savedKey = localStorage.getItem('deepseek_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                showStatus('API ключ загружен из сохраненных данных', 'success');
+            }
+        };
+        
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (apiKey) {
+                localStorage.setItem('deepseek_api_key', apiKey);
+                showStatus('API ключ сохранен!', 'success');
+            } else {
+                showStatus('Пожалуйста, введите API ключ', 'error');
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.className = '';
+            }, 3000);
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const apiKey = localStorage.getItem('deepseek_api_key');
+            if (!apiKey) {
+                showStatus('Сначала установите API ключ DeepSeek', 'error');
+                return;
+            }
+            
+            // Добавляем сообщение пользователя в чат
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Показываем индикатор загрузки
+            const loadingId = addMessage('Думаю...', 'bot');
+            
+            try {
+                const response = await callDeepSeekAPI(message, apiKey);
+                // Удаляем индикатор загрузки
+                removeMessage(loadingId);
+                // Добавляем ответ бота
+                addMessage(response, 'bot');
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage(`Ошибка: ${error.message}`, 'bot');
+            }
+        }
+        
+        async function callDeepSeekAPI(question, apiKey) {
+            const response = await fetch(DEEPSEEK_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: DEEPSEEK_MODEL,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: `Ответь на вопрос пользователя на русском языке: ${question}`
+                        }
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 1000
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+        
+        function addMessage(text, type) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.textContent = text;
+            messageDiv.id = 'msg_' + Date.now();
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageDiv.id;
+        }
+        
+        function removeMessage(messageId) {
+            const message = document.getElementById(messageId);
+            if (message) {
+                message.remove();
+            }
+        }
+    </script>
+</body>
+</html>

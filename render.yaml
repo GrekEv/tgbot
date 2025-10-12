@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rag-support-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app_simple_ollama.py
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: USE_OLLAMA
+        value: false
+      - key: OPENAI_API_KEY
+        sync: false
