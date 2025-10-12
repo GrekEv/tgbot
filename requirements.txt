@@ -1,8 +1,2 @@
-gradio==4.44.0
-requests==2.31.0
-pandas==2.1.4
-numpy==1.24.3
-langchain==0.1.0
-faiss-cpu==1.7.4
-openai==1.3.0
-streamlit==1.28.0
+streamlit
+requests
